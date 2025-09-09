@@ -1,12 +1,12 @@
-# Payroll Timesheet App
+# Timesheet Paylip App
 
-A simple React-based timesheet application that allows employees to select clock-in and clock-out times and generates accurate payslips with US payroll tax calculations.
+A simple React-based timesheet application that allows employees to select clock-in and clock-out times and generates payslips with US payroll tax calculations.
 
 ## Features
 
 - **Time Selection**: Dropdown menus for clock-in/out times (6 AM - 10 PM in 30-minute intervals)
 - **Employee Information**: Input fields for employee details and pay period
-- **US Payroll Calculations**: Accurate 2024 tax calculations including:
+- **US Payroll Calculations**: 2024 tax calculations including:
   - Federal income tax with standard deductions
   - State income tax (configurable by state)
   - FICA (Social Security and Medicare)
@@ -41,4 +41,4 @@ A simple React-based timesheet application that allows employees to select clock
 
 - React 18
 - Modern CSS with responsive design
-- Accurate US payroll tax calculations for 2024
+- US payroll tax calculations for 2024

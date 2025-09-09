@@ -82,42 +82,48 @@ function PayslipDisplay({ paystubData, onBack }) {
               ))}
             </div>
           </div>
-          <div className="pay-period-info">
-            <div className="employee-id">
-              <strong>Employee ID</strong>
-              <div>{paystubData.employee.employeeId}</div>
-              <div>Paycheck</div>
-              <div>#{paystubData.employee.employeeId}</div>
+          <div className="pay-period-info highlighted-box">
+            <div className="pay-info-row">
+              <div className="pay-info-label">Employee ID</div>
+              <div className="pay-info-value">{paystubData.employee.employeeId}</div>
             </div>
-            <div className="pay-dates">
-              <div><strong>Paid</strong></div>
-              <div>{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
-              <div>Pay Period</div>
-              <div className="date-range">
+            <div className="pay-info-row">
+              <div className="pay-info-label">Paycheck</div>
+              <div className="pay-info-value">#{paystubData.employee.employeeId}</div>
+            </div>
+            <div className="pay-info-row">
+              <div className="pay-info-label">Paid</div>
+              <div className="pay-info-value">{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+            </div>
+            <div className="pay-info-row">
+              <div className="pay-info-label">Pay Period</div>
+              <div className="pay-info-value">
                 {formatDate(paystubData.payPeriod.start)} - {formatDate(paystubData.payPeriod.end)}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Circle Chart and Legend */}
+        {/* Chart Section - positioned left */}
         <div className="chart-section">
-          <div className="circle-chart">
-            <div className="circle-container" style={getCircleStyle()}>
-              <div className="circle-inner">
-                <div className="percentage">{calculateNetPayPercentage()}%</div>
+          <div className="chart-container">
+            <div className="circle-chart">
+              <div className="circle-container" style={getCircleStyle()}>
+                <div className="circle-inner">
+                  <div className="percentage">{calculateNetPayPercentage()}%</div>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="chart-legend">
-            <div className="legend-item">
-              <span className="dot taxes">●</span> Taxes ({paystubData.summary?.taxPercentage || 0}%)
-            </div>
-            <div className="legend-item">
-              <span className="dot deductions">●</span> Deductions ({paystubData.summary?.benefitPercentage || 0}%)
-            </div>
-            <div className="legend-item">
-              <span className="dot takehome">●</span> Take Home ({paystubData.summary?.netPercentage || calculateNetPayPercentage()}%)
+            <div className="chart-legend">
+              <div className="legend-item">
+                <span className="dot taxes">●</span> Taxes ({paystubData.summary?.taxPercentage || Math.round(((paystubData.deductions.federalTax.current + paystubData.deductions.stateTax.current + paystubData.deductions.socialSecurity.current + paystubData.deductions.medicare.current) / paystubData.earnings.gross) * 100)}%)
+              </div>
+              <div className="legend-item">
+                <span className="dot deductions">●</span> Deductions ({paystubData.summary?.benefitPercentage || 0}%)
+              </div>
+              <div className="legend-item">
+                <span className="dot takehome">●</span> Take Home ({paystubData.summary?.netPercentage || calculateNetPayPercentage()}%)
+              </div>
             </div>
           </div>
         </div>

@@ -168,9 +168,9 @@ body {
 
 /* Body */
 .payslip-body {
-  max-width: 400px;
+  max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px;
   background: white;
   margin-top: 0;
   border-radius: 0 0 15px 15px;
@@ -275,9 +275,9 @@ body {
   font-size: 8px;
 }
 
-.dot.current { color: #4CAF50; }
-.dot.deductions { color: #FFC107; }
-.dot.other { color: #f0f0f0; }
+.dot.taxes { color: #9C27B0; }
+.dot.deductions { color: #2196F3; }
+.dot.takehome { color: #4CAF50; }
 
 /* Tabs Section */
 .tabs-section {
@@ -326,38 +326,53 @@ body {
   color: #333;
 }
 
-/* Expandable Sections */
-.expandable-section {
-  margin-bottom: 15px;
+/* Accordion Sections */
+.accordion-section {
+  margin-bottom: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.section-header {
+.accordion-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 0;
+  padding: 18px 20px;
   cursor: pointer;
-  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
   font-size: 16px;
   font-weight: 500;
   color: #333;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.section-header.clickable:hover {
-  background-color: #f8f9fa;
-  margin: 0 -10px;
-  padding: 15px 10px;
-  border-radius: 4px;
+.accordion-header:hover {
+  background-color: #e9ecef;
 }
 
-.expand-icon {
-  font-size: 14px;
+.chevron {
+  font-size: 16px;
   color: #666;
-  transition: transform 0.2s;
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
 }
 
-.section-content {
-  padding: 10px 0;
+.chevron.expanded {
+  transform: rotate(90deg);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+  background: white;
+}
+
+.accordion-content.expanded {
+  max-height: 1000px;
+  padding: 20px;
 }
 
 /* Earnings */
@@ -517,6 +532,108 @@ body {
 
 .tax-item:last-child {
   border-bottom: none;
+}
+
+/* Pay Items */
+.pay-item {
+  margin-bottom: 15px;
+}
+
+.pay-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.pay-label {
+  font-size: 14px;
+  color: #333;
+}
+
+.pay-label.bold {
+  font-weight: 600;
+}
+
+.pay-amount {
+  font-size: 14px;
+  color: #333;
+  text-align: right;
+}
+
+.pay-amount.bold {
+  font-weight: 600;
+}
+
+.pay-amount.negative {
+  color: #dc3545;
+}
+
+.pay-item-details {
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+.pay-sub-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 13px;
+  color: #666;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.pay-sub-item:last-child {
+  border-bottom: none;
+}
+
+/* Sub Accordions */
+.sub-accordion {
+  margin-bottom: 12px;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.sub-accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 16px;
+  cursor: pointer;
+  background: #f8f9fa;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s ease;
+}
+
+.sub-accordion-header:hover {
+  background-color: #e9ecef;
+}
+
+.sub-accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+  background: white;
+}
+
+.sub-accordion-content.expanded {
+  max-height: 500px;
+  padding: 15px 16px;
+}
+
+.sub-item-placeholder {
+  font-size: 13px;
+  color: #999;
+  font-style: italic;
+}
+
+.tax-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* Responsive Design */

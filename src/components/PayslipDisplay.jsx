@@ -44,12 +44,15 @@ function PayslipDisplay({ paystubData, onBack }) {
   };
 
   const getCircleStyle = () => {
-    const percentage = calculateNetPayPercentage();
+    const netPercentage = calculateNetPayPercentage();
+    const taxPercentage = 20;
+    const deductionPercentage = 14;
+    
     return {
       background: `conic-gradient(
-        #4CAF50 0% ${percentage}%, 
-        #FFC107 ${percentage}% ${percentage + 15}%, 
-        #f0f0f0 ${percentage + 15}% 100%
+        #4CAF50 0% ${netPercentage}%, 
+        #9C27B0 ${netPercentage}% ${netPercentage + taxPercentage}%, 
+        #2196F3 ${netPercentage + taxPercentage}% 100%
       )`
     };
   };
@@ -103,13 +106,13 @@ function PayslipDisplay({ paystubData, onBack }) {
           </div>
           <div className="chart-legend">
             <div className="legend-item">
-              <span className="dot current">●</span> Current (20%)
+              <span className="dot taxes">●</span> Taxes (20%)
             </div>
             <div className="legend-item">
-              <span className="dot deductions">●</span> Deductions (44%)
+              <span className="dot deductions">●</span> Deductions (14%)
             </div>
             <div className="legend-item">
-              <span className="dot other">●</span> Other Expenses (36%)
+              <span className="dot takehome">●</span> Take Home ({calculateNetPayPercentage()}%)
             </div>
           </div>
         </div>
@@ -143,181 +146,183 @@ function PayslipDisplay({ paystubData, onBack }) {
         </div>
 
         {/* Pay Info Section */}
-        <div className="expandable-section">
+        <div className="accordion-section">
           <div 
-            className="section-header clickable" 
+            className="accordion-header" 
             onClick={() => toggleSection('payInfo')}
           >
             <span>Pay Info</span>
-            <span className="expand-icon">{expandedSections.payInfo ? '⌄' : '›'}</span>
+            <span className={`chevron ${expandedSections.payInfo ? 'expanded' : ''}`}>›</span>
           </div>
-          {expandedSections.payInfo && (
-            <div className="section-content">
+          <div className={`accordion-content ${expandedSections.payInfo ? 'expanded' : ''}`}>
+            <div className="pay-info-content">
               {/* Earnings */}
-              <div className="earnings-section">
-                <div className="earnings-label">Earnings</div>
-                <div className="earnings-total">{formatCurrency(paystubData.earnings.gross)}</div>
-                <div className="earnings-details">
-                  <div className="earnings-item">
-                    <span>Regular</span>
-                    <span>{formatHours(paystubData.earnings.regular.hours)}</span>
+              <div className="pay-item">
+                <div className="pay-item-header">
+                  <span className="pay-label bold">Earnings</span>
+                  <span className="pay-amount bold">{formatCurrency(paystubData.earnings.gross)}</span>
+                </div>
+                <div className="pay-item-details">
+                  <div className="pay-sub-item">
+                    <span>Gross Earnings</span>
                     <span>{formatCurrency(paystubData.earnings.regular.amount)}</span>
                   </div>
-                  <div className="earnings-item">
-                    <span>Taxes</span>
-                    <span>—</span>
-                    <span>—</span>
+                  <div className="pay-sub-item">
+                    <span>Non-Taxable Earnings</span>
+                    <span>$0.00</span>
                   </div>
-                  <div className="earnings-item">
-                    <span>Other</span>
-                    <span>—</span>
-                    <span>—</span>
-                  </div>
-                  {paystubData.earnings.overtime.hours > 0 && (
-                    <div className="earnings-item">
-                      <span>Overtime</span>
-                      <span>{formatHours(paystubData.earnings.overtime.hours)}</span>
-                      <span>{formatCurrency(paystubData.earnings.overtime.amount)}</span>
-                    </div>
-                  )}
                 </div>
               </div>
-
-              {/* Gross Pay */}
-              <div className="expandable-section">
-                <div 
-                  className="section-header clickable"
-                  onClick={() => toggleSection('grossPay')}
-                >
-                  <span>Gross Pay</span>
-                  <span className="expand-icon">{expandedSections.grossPay ? '⌄' : '›'}</span>
+              
+              {/* Taxes */}
+              <div className="pay-item">
+                <div className="pay-item-header">
+                  <span className="pay-label">Taxes</span>
+                  <span className="pay-amount negative">({formatCurrency(paystubData.deductions.federalTax.current + paystubData.deductions.stateTax.current)})</span>
                 </div>
-                {expandedSections.grossPay && (
-                  <div className="section-content">
-                    <div className="gross-pay-amount">
-                      {formatCurrency(paystubData.earnings.gross)}
-                    </div>
-                    <div className="progress-bar-container">
-                      <div className="progress-bar gross" style={{width: '100%'}}></div>
-                    </div>
-                    <div className="earnings-breakdown">
-                      <div className="breakdown-header">Earnings</div>
-                      <div className="breakdown-total">{formatCurrency(paystubData.earnings.gross)}</div>
-                      <div className="breakdown-items">
-                        <div className="breakdown-item">
-                          <span>Regular</span>
-                          <span>{formatHours(paystubData.earnings.regular.hours)}</span>
-                          <span>{formatCurrency(paystubData.earnings.regular.amount)}</span>
-                        </div>
-                        <div className="breakdown-item">
-                          <span>Taxes</span>
-                          <span>0.00</span>
-                          <span>$0.00</span>
-                        </div>
-                        <div className="breakdown-item">
-                          <span>Other</span>
-                          <span>0.00</span>
-                          <span>$0.00</span>
-                        </div>
-                        {paystubData.earnings.overtime.hours > 0 && (
-                          <div className="breakdown-item">
-                            <span>Overtime</span>
-                            <span>{formatHours(paystubData.earnings.overtime.hours)}</span>
-                            <span>{formatCurrency(paystubData.earnings.overtime.amount)}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
-
-              {/* Taxes and Deductions */}
-              <div className="expandable-section">
-                <div 
-                  className="section-header clickable"
-                  onClick={() => toggleSection('taxesDeductions')}
-                >
-                  <span>Taxes and Deductions</span>
-                  <span className="expand-icon">{expandedSections.taxesDeductions ? '⌄' : '›'}</span>
+              
+              {/* Deductions */}
+              <div className="pay-item">
+                <div className="pay-item-header">
+                  <span className="pay-label">Deductions</span>
+                  <span className="pay-amount negative">({formatCurrency(paystubData.deductions.socialSecurity.current + paystubData.deductions.medicare.current)})</span>
                 </div>
-                {expandedSections.taxesDeductions && (
-                  <div className="section-content">
-                    <div className="deductions-amount">
-                      {formatCurrency(paystubData.deductions.total.current)}
-                    </div>
-                    <div className="deductions-percentage">
-                      {Math.round((paystubData.deductions.total.current / paystubData.earnings.gross) * 100)}% of Gross Pay
-                    </div>
-                    <div className="progress-bar-container">
-                      <div 
-                        className="progress-bar deductions" 
-                        style={{
-                          width: `${(paystubData.deductions.total.current / paystubData.earnings.gross) * 100}%`
-                        }}
-                      ></div>
-                    </div>
-
-                    {/* Pre Tax Deductions */}
-                    <div className="sub-section">
-                      <div 
-                        className="sub-section-header"
-                        onClick={() => toggleSection('preTaxDeductions')}
-                      >
-                        <span>Pre Tax Deductions</span>
-                        <span className="amount">{formatCurrency(paystubData.deductions.preTax || 0)}</span>
-                        <span className="expand-icon">{expandedSections.preTaxDeductions ? '⌄' : '›'}</span>
-                      </div>
-                    </div>
-
-                    {/* Post Tax Deductions */}
-                    <div className="sub-section">
-                      <div 
-                        className="sub-section-header"
-                        onClick={() => toggleSection('postTaxDeductions')}
-                      >
-                        <span>Post Tax Deductions</span>
-                        <span className="amount">{formatCurrency(paystubData.deductions.postTax || 0)}</span>
-                        <span className="expand-icon">{expandedSections.postTaxDeductions ? '⌄' : '›'}</span>
-                      </div>
-                    </div>
-
-                    {/* Employee Taxes */}
-                    <div className="sub-section">
-                      <div 
-                        className="sub-section-header"
-                        onClick={() => toggleSection('employeeTaxes')}
-                      >
-                        <span>Employee Taxes</span>
-                        <span className="amount">{formatCurrency(paystubData.deductions.total.current)}</span>
-                        <span className="expand-icon">{expandedSections.employeeTaxes ? '⌄' : '›'}</span>
-                      </div>
-                      {expandedSections.employeeTaxes && (
-                        <div className="sub-section-content">
-                          <div className="tax-item">
-                            <span>Federal Tax</span>
-                            <span>{formatCurrency(paystubData.deductions.federalTax.current)}</span>
-                          </div>
-                          <div className="tax-item">
-                            <span>State Tax</span>
-                            <span>{formatCurrency(paystubData.deductions.stateTax.current)}</span>
-                          </div>
-                          <div className="tax-item">
-                            <span>Social Security</span>
-                            <span>{formatCurrency(paystubData.deductions.socialSecurity.current)}</span>
-                          </div>
-                          <div className="tax-item">
-                            <span>Medicare</span>
-                            <span>{formatCurrency(paystubData.deductions.medicare.current)}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+              </div>
+              
+              {/* Take Home Earnings */}
+              <div className="pay-item">
+                <div className="pay-item-header">
+                  <span className="pay-label bold">Take Home Earnings</span>
+                  <span className="pay-amount bold">{formatCurrency(paystubData.netPay.current)}</span>
+                </div>
               </div>
             </div>
-          )}
+          </div>
+        </div>
+
+        {/* Gross Pay Section */}
+        <div className="accordion-section">
+          <div 
+            className="accordion-header"
+            onClick={() => toggleSection('grossPay')}
+          >
+            <span>Gross Pay</span>
+            <span className={`chevron ${expandedSections.grossPay ? 'expanded' : ''}`}>›</span>
+          </div>
+          <div className={`accordion-content ${expandedSections.grossPay ? 'expanded' : ''}`}>
+            <div className="gross-pay-content">
+              {/* Earnings */}
+              <div className="pay-item">
+                <div className="pay-item-header">
+                  <span className="pay-label bold">Earnings</span>
+                  <span className="pay-amount bold">{formatCurrency(paystubData.earnings.gross)}</span>
+                </div>
+              </div>
+              
+              {/* Regular */}
+              <div className="pay-item">
+                <div className="pay-item-header">
+                  <span className="pay-label">Regular</span>
+                  <span className="pay-amount">{formatCurrency(paystubData.earnings.regular.amount)}</span>
+                </div>
+              </div>
+              
+              {/* Double Time */}
+              <div className="pay-item">
+                <div className="pay-item-header">
+                  <span className="pay-label">Double Time</span>
+                  <span className="pay-amount">$0.00</span>
+                </div>
+              </div>
+              
+              {/* Overtime */}
+              {paystubData.earnings.overtime.hours > 0 && (
+                <div className="pay-item">
+                  <div className="pay-item-header">
+                    <span className="pay-label">Overtime</span>
+                    <span className="pay-amount">{formatCurrency(paystubData.earnings.overtime.amount)}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Taxes and Deductions Section */}
+        <div className="accordion-section">
+          <div 
+            className="accordion-header"
+            onClick={() => toggleSection('taxesDeductions')}
+          >
+            <span>Taxes and Deductions</span>
+            <span className={`chevron ${expandedSections.taxesDeductions ? 'expanded' : ''}`}>›</span>
+          </div>
+          <div className={`accordion-content ${expandedSections.taxesDeductions ? 'expanded' : ''}`}>
+            <div className="taxes-deductions-content">
+              {/* Pre Tax Deductions */}
+              <div className="sub-accordion">
+                <div 
+                  className="sub-accordion-header"
+                  onClick={() => toggleSection('preTaxDeductions')}
+                >
+                  <span>Pre Tax Deductions</span>
+                  <span className="amount">{formatCurrency(paystubData.deductions.preTax || 0)}</span>
+                  <span className={`chevron ${expandedSections.preTaxDeductions ? 'expanded' : ''}`}>›</span>
+                </div>
+                <div className={`sub-accordion-content ${expandedSections.preTaxDeductions ? 'expanded' : ''}`}>
+                  <div className="sub-item-placeholder">No pre-tax deductions</div>
+                </div>
+              </div>
+
+              {/* Post Tax Deductions */}
+              <div className="sub-accordion">
+                <div 
+                  className="sub-accordion-header"
+                  onClick={() => toggleSection('postTaxDeductions')}
+                >
+                  <span>Post Tax Deductions</span>
+                  <span className="amount">{formatCurrency(paystubData.deductions.postTax || 0)}</span>
+                  <span className={`chevron ${expandedSections.postTaxDeductions ? 'expanded' : ''}`}>›</span>
+                </div>
+                <div className={`sub-accordion-content ${expandedSections.postTaxDeductions ? 'expanded' : ''}`}>
+                  <div className="sub-item-placeholder">No post-tax deductions</div>
+                </div>
+              </div>
+
+              {/* Employee Taxes */}
+              <div className="sub-accordion">
+                <div 
+                  className="sub-accordion-header"
+                  onClick={() => toggleSection('employeeTaxes')}
+                >
+                  <span>Employee Taxes</span>
+                  <span className="amount">{formatCurrency(paystubData.deductions.federalTax.current + paystubData.deductions.stateTax.current + paystubData.deductions.socialSecurity.current + paystubData.deductions.medicare.current)}</span>
+                  <span className={`chevron ${expandedSections.employeeTaxes ? 'expanded' : ''}`}>›</span>
+                </div>
+                <div className={`sub-accordion-content ${expandedSections.employeeTaxes ? 'expanded' : ''}`}>
+                  <div className="tax-breakdown">
+                    <div className="tax-item">
+                      <span>Federal Tax</span>
+                      <span>{formatCurrency(paystubData.deductions.federalTax.current)}</span>
+                    </div>
+                    <div className="tax-item">
+                      <span>State Tax</span>
+                      <span>{formatCurrency(paystubData.deductions.stateTax.current)}</span>
+                    </div>
+                    <div className="tax-item">
+                      <span>Social Security</span>
+                      <span>{formatCurrency(paystubData.deductions.socialSecurity.current)}</span>
+                    </div>
+                    <div className="tax-item">
+                      <span>Medicare</span>
+                      <span>{formatCurrency(paystubData.deductions.medicare.current)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

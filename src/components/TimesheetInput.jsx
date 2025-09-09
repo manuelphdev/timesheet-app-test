@@ -24,7 +24,17 @@ function TimesheetInput({ onGeneratePaystub }) {
     name: 'John Doe',
     employeeId: '200000',
     hourlyRate: 25.00,
-    address: '1234 Main Street\nSanta Monica, CA 90401'
+    address: '1234 Main Street\nSanta Monica, CA 90401',
+    filingStatus: 'single',
+    stateCode: 'DEFAULT',
+    payFrequency: 'biweekly',
+    ytdGross: 12000
+  });
+
+  const [deductions, setDeductions] = useState({
+    healthInsurance: 0,
+    retirement401k: 0,
+    parkingFee: 0
   });
 
   const [timeWorked, setTimeWorked] = useState({
@@ -58,8 +68,15 @@ function TimesheetInput({ onGeneratePaystub }) {
     }));
   };
 
+  const handleDeductionChange = (field, value) => {
+    setDeductions(prev => ({
+      ...prev,
+      [field]: parseFloat(value) || 0
+    }));
+  };
+
   const handleGeneratePaystub = () => {
-    onGeneratePaystub(employeeInfo, timeWorked, payPeriod);
+    onGeneratePaystub({ ...employeeInfo, deductions }, timeWorked, payPeriod);
   };
 
   const formatDate = (dateString) => {
@@ -79,45 +96,122 @@ function TimesheetInput({ onGeneratePaystub }) {
 
       <div className="form-section">
         <h3>Employee Information</h3>
-        <div className="form-group">
-          <label htmlFor="employeeName">Employee Name:</label>
-          <input
-            type="text"
-            id="employeeName"
-            value={employeeInfo.name}
-            onChange={(e) => handleEmployeeChange('name', e.target.value)}
-            className="form-input"
-          />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="employeeName">Employee Name:</label>
+            <input
+              type="text"
+              id="employeeName"
+              value={employeeInfo.name}
+              onChange={(e) => handleEmployeeChange('name', e.target.value)}
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="hourlyRate">Hourly Rate ($):</label>
+            <input
+              type="number"
+              id="hourlyRate"
+              value={employeeInfo.hourlyRate}
+              onChange={(e) => handleEmployeeChange('hourlyRate', parseFloat(e.target.value) || 0)}
+              className="form-input"
+              step="0.01"
+              min="0"
+            />
+          </div>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="employeeId">Employee ID:</label>
-          <input
-            type="text"
-            id="employeeId"
-            value={employeeInfo.employeeId}
-            onChange={(e) => handleEmployeeChange('employeeId', e.target.value)}
-            className="form-input"
-          />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="filingStatus">Filing Status:</label>
+            <select
+              id="filingStatus"
+              value={employeeInfo.filingStatus}
+              onChange={(e) => handleEmployeeChange('filingStatus', e.target.value)}
+              className="form-select"
+            >
+              <option value="single">Single</option>
+              <option value="marriedJointly">Married Filing Jointly</option>
+              <option value="marriedSeparately">Married Filing Separately</option>
+              <option value="headOfHousehold">Head of Household</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="stateCode">State:</label>
+            <select
+              id="stateCode"
+              value={employeeInfo.stateCode}
+              onChange={(e) => handleEmployeeChange('stateCode', e.target.value)}
+              className="form-select"
+            >
+              <option value="DEFAULT">Default (5%)</option>
+              <option value="CA">California</option>
+              <option value="TX">Texas (No Tax)</option>
+              <option value="NY">New York</option>
+              <option value="FL">Florida (No Tax)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="form-section">
+        <h3>Deductions (Optional)</h3>
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="healthInsurance">Health Insurance ($/month):</label>
+            <input
+              type="number"
+              id="healthInsurance"
+              value={deductions.healthInsurance}
+              onChange={(e) => handleDeductionChange('healthInsurance', e.target.value)}
+              className="form-input"
+              step="0.01"
+              min="0"
+              placeholder="e.g. 150.00"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="retirement401k">401(k) Contribution (%):</label>
+            <input
+              type="number"
+              id="retirement401k"
+              value={deductions.retirement401k}
+              onChange={(e) => handleDeductionChange('retirement401k', e.target.value)}
+              className="form-input"
+              step="0.1"
+              min="0"
+              max="100"
+              placeholder="e.g. 5"
+            />
+          </div>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="hourlyRate">Hourly Rate ($):</label>
-          <input
-            type="number"
-            id="hourlyRate"
-            value={employeeInfo.hourlyRate}
-            onChange={(e) => handleEmployeeChange('hourlyRate', parseFloat(e.target.value))}
-            className="form-input"
-            step="0.01"
-            min="0"
-          />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="parkingFee">Parking Fee ($/month):</label>
+            <input
+              type="number"
+              id="parkingFee"
+              value={deductions.parkingFee}
+              onChange={(e) => handleDeductionChange('parkingFee', e.target.value)}
+              className="form-input"
+              step="0.01"
+              min="0"
+              placeholder="e.g. 25.00"
+            />
+          </div>
+          <div className="form-group">
+            {/* Empty space for symmetry */}
+          </div>
         </div>
       </div>
 
       <div className="form-section">
         <h3>Work Hours</h3>
-        <div className="time-inputs">
+        <div className="form-row">
           <div className="form-group">
             <label htmlFor="clockIn">Clock In:</label>
             <select
@@ -150,13 +244,25 @@ function TimesheetInput({ onGeneratePaystub }) {
             </select>
           </div>
         </div>
+        <div className="hours-display">
+          <strong>Total Hours: </strong>
+          {(() => {
+            const [inHour, inMinute] = timeWorked.clockIn.split(':').map(Number);
+            const [outHour, outMinute] = timeWorked.clockOut.split(':').map(Number);
+            const clockInMinutes = inHour * 60 + inMinute;
+            let clockOutMinutes = outHour * 60 + outMinute;
+            if (clockOutMinutes < clockInMinutes) clockOutMinutes += 24 * 60;
+            const hours = (clockOutMinutes - clockInMinutes) / 60;
+            return `${hours.toFixed(2)} hours`;
+          })()}
+        </div>
       </div>
 
       <div className="form-section">
         <h3>Pay Period</h3>
-        <div className="pay-period-inputs">
+        <div className="form-row">
           <div className="form-group">
-            <label htmlFor="payStart">Pay Period Start:</label>
+            <label htmlFor="payStart">Start Date:</label>
             <input
               type="date"
               id="payStart"
@@ -167,7 +273,7 @@ function TimesheetInput({ onGeneratePaystub }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="payEnd">Pay Period End:</label>
+            <label htmlFor="payEnd">End Date:</label>
             <input
               type="date"
               id="payEnd"
@@ -177,9 +283,9 @@ function TimesheetInput({ onGeneratePaystub }) {
             />
           </div>
         </div>
-        <p className="pay-period-display">
-          {formatDate(payPeriod.start)} - {formatDate(payPeriod.end)}
-        </p>
+        <div className="pay-period-display">
+          <strong>Period: </strong>{formatDate(payPeriod.start)} - {formatDate(payPeriod.end)}
+        </div>
       </div>
 
       <button 

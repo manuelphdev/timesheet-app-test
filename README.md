@@ -1,4 +1,4 @@
-# Timesheet Paylip App
+# Timesheet Payslip App
 
 A simple React-based timesheet application that allows employees to select clock-in and clock-out times and generates payslips with US payroll tax calculations.
 
